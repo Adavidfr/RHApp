@@ -1,9 +1,7 @@
 package com.rhapp.di
 
-import com.rhapp.data.repository.AuthRepositoryImpl
-import com.rhapp.data.repository.DepartamentoRepositoryImpl
-import com.rhapp.domain.repository.AuthRepository
-import com.rhapp.domain.repository.DepartamentoRepository
+import com.rhapp.data.repository.*
+import com.rhapp.domain.repository.*
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -19,4 +17,13 @@ abstract class RepositoryModule {
 
     @Binds @Singleton
     abstract fun bindDepartamentoRepository(impl: DepartamentoRepositoryImpl): DepartamentoRepository
+
+    @Binds @Singleton
+    abstract fun bindEmpleadoRepository(impl: EmpleadoRepositoryImpl): EmpleadoRepository
+
+    @Binds @Singleton
+    abstract fun bindNominaRepository(impl: NominaRepositoryImpl): NominaRepository
+
+    @Binds @Singleton
+    abstract fun bindAsistenciaRepository(impl: AsistenciaRepositoryImpl): AsistenciaRepository
 }
