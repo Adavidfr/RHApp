@@ -42,4 +42,19 @@ class NominaRepositoryImpl @Inject constructor(
         val r = api.deleteNomina(id)
         if (!r.isSuccessful) error("Error ${r.code()}")
     }
+
+    override suspend fun getStats(): Result<Map<String, Any>> = runCatching {
+        val r = api.getEstadisticas()
+        if (r.isSuccessful) {
+            val s = r.body()!!
+            mapOf<String, Any>(
+                "total"      to ((s["total"] as? Int) ?: 0),
+                "pendientes" to ((s["pendientes"] as? Int) ?: 0),
+                "pagadas"    to ((s["pagadas"] as? Int) ?: 0),
+                "generadas"  to ((s["generadas"] as? Int) ?: 0),
+                "revisadas"  to ((s["revisadas"] as? Int) ?: 0),
+                "anuladas"   to ((s["anuladas"] as? Int) ?: 0),
+            )
+        } else error("Error ${r.code()}")
+    }
 }

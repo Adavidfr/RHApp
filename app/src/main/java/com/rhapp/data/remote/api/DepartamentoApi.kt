@@ -28,4 +28,7 @@ interface DepartamentoApi {
 
     @GET("departamentos/{id}/empleados_total/")
     suspend fun getEmpleadosTotal(@Path("id") id: Int): Response<Map<String, Int>>
+
+    @GET("departamentos/estadisticas/")
+    suspend fun getStats(): Response<DepartamentoStatsDto>
 }

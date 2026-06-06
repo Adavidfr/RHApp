@@ -50,4 +50,17 @@ class EmpleadoRepositoryImpl @Inject constructor(
         val r = api.deleteEmpleado(id)
         if (!r.isSuccessful) error("Error ${r.code()}")
     }
+
+    override suspend fun getStats(): Result<Map<String, Any>> = runCatching {
+        val r = api.getStats()
+        if (r.isSuccessful) {
+            val s = r.body()!!
+            mapOf(
+                "total"     to s.total,
+                "activos"   to s.activos,
+                "inactivos" to s.inactivos,
+                "por_departamento" to s.porDepartamento,
+            )
+        } else error("Error ${r.code()}")
+    }
 }

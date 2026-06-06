@@ -25,5 +25,8 @@ abstract class RepositoryModule {
     abstract fun bindNominaRepository(impl: NominaRepositoryImpl): NominaRepository
 
     @Binds @Singleton
+    abstract fun bindPuestoRepository(impl: PuestoRepositoryImpl): PuestoRepository
+
+    @Binds @Singleton
     abstract fun bindAsistenciaRepository(impl: AsistenciaRepositoryImpl): AsistenciaRepository
 }

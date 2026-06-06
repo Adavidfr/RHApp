@@ -28,4 +28,7 @@ interface PuestoApi {
 
     @GET("puestos/{id}/empleados_puesto/")
     suspend fun getEmpleadosPuesto(@Path("id") id: Int): Response<List<EmpleadoDto>>
+
+    @GET("puestos/estadisticas/")
+    suspend fun getStats(): Response<PuestoStatsDto>
 }

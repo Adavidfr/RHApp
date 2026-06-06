@@ -1,10 +1,19 @@
 package com.rhapp.presentation.navigation
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
@@ -15,8 +24,12 @@ import com.rhapp.presentation.ui.dashboard.DashboardScreen
 import com.rhapp.presentation.ui.nominas.NominasScreen
 import com.rhapp.presentation.ui.nominas.NominaDetailScreen
 import com.rhapp.presentation.ui.profile.ProfileScreen
+import com.rhapp.presentation.ui.admin.AdminScaffold
+import com.rhapp.presentation.ui.admin.dashboard.AdminDashboardScreen
 import com.rhapp.presentation.viewmodel.AuthViewModel
 import com.rhapp.theme.Surface
+import com.rhapp.theme.TextSecondary
+import com.rhapp.theme.TextFaint
 
 @Composable
 fun NavGraph(authViewModel: AuthViewModel) {
@@ -34,6 +47,7 @@ fun NavGraph(authViewModel: AuthViewModel) {
 private fun NavGraphContent(authViewModel: AuthViewModel) {
     val navController   = rememberNavController()
     val isAuthenticated by authViewModel.isAuthenticated.collectAsState()
+    val isStaff        by authViewModel.isStaff.collectAsState()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute      = navBackStackEntry?.destination?.route
@@ -51,7 +65,11 @@ private fun NavGraphContent(authViewModel: AuthViewModel) {
     val showBottomBar = currentRoute in routesConBottomBar
 
     val startDestination = remember {
-        if (isAuthenticated) Screen.Home.route else Screen.Login.route
+        when {
+            !isAuthenticated -> Screen.Login.route
+            isStaff          -> Screen.AdminDashboard.route
+            else             -> Screen.Home.route
+        }
     }
 
     LaunchedEffect(isAuthenticated) {
@@ -154,6 +172,86 @@ private fun NavGraphContent(authViewModel: AuthViewModel) {
                         }
                     },
                 )
+            }
+
+            // ── ADMIN DASHBOARD ────────────────────────────────
+            composable(Screen.AdminDashboard.route) {
+                if (!isStaff) {
+                    LaunchedEffect(Unit) {
+                        navController.navigate(Screen.Home.route) { popUpTo(0) }
+                    }
+                    return@composable
+                }
+                AdminScaffold(
+                    currentRoute = Screen.AdminDashboard.route,
+                    user         = authViewModel.currentUser.collectAsState().value,
+                    title        = "Dashboard",
+                    onNavClick   = { route -> navController.navigate(route) {
+                        launchSingleTop = true
+                        restoreState    = true
+                    }},
+                    onHomeClick   = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.AdminDashboard.route) { inclusive = false }
+                        }
+                    },
+                    onLogout     = {
+                        authViewModel.logout()
+                        navController.navigate(Screen.Login.route) { popUpTo(0) { inclusive = true } }
+                    },
+                ) { padding ->
+                    Box(modifier = Modifier.padding(padding)) {
+                        AdminDashboardScreen(onNavigate = { route -> navController.navigate(route) })
+                    }
+                }
+            }
+
+            // ── ADMIN MÓDULOS (placeholders) ───────────────────
+            listOf(
+                Screen.AdminEmpleados to "Empleados",
+                Screen.AdminDepartamentos to "Departamentos",
+                Screen.AdminPuestos to "Puestos",
+                Screen.AdminNominas to "Nóminas",
+                Screen.AdminAsistencias to "Asistencia",
+            ).forEach { (screen, title) ->
+                composable(screen.route) {
+                    if (!isStaff) {
+                        LaunchedEffect(Unit) {
+                            navController.navigate(Screen.Home.route) { popUpTo(0) }
+                        }
+                        return@composable
+                    }
+                    AdminScaffold(
+                        currentRoute = screen.route,
+                        user         = authViewModel.currentUser.collectAsState().value,
+                        title        = title,
+                        onNavClick   = { route -> navController.navigate(route) { launchSingleTop = true } },
+                        onHomeClick   = { navController.navigate(Screen.Home.route) },
+                        onLogout     = {
+                            authViewModel.logout()
+                            navController.navigate(Screen.Login.route) { popUpTo(0) { inclusive = true } }
+                        },
+                    ) { padding ->
+                        Box(
+                            modifier         = Modifier.fillMaxSize().padding(padding),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = TextSecondary,
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    text = "Próximo módulo",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = TextFaint,
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }

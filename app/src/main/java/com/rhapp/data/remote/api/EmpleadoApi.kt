@@ -36,4 +36,7 @@ interface EmpleadoApi {
 
     @GET("empleados/{id}/subordinados/")
     suspend fun getSubordinados(@Path("id") id: Int): Response<List<EmpleadoDto>>
+
+    @GET("empleados/estadisticas/")
+    suspend fun getStats(): Response<EmpleadoStatsDto>
 }

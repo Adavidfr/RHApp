@@ -9,4 +9,5 @@ interface NominaRepository {
     suspend fun createNomina(payload: NominaPayload): Result<Nomina>
     suspend fun marcarPagada(id: Int): Result<Nomina>
     suspend fun deleteNomina(id: Int): Result<Unit>
+    suspend fun getStats(): Result<Map<String, Any>>
 }

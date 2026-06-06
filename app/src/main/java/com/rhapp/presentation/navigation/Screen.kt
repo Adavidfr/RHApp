@@ -6,6 +6,9 @@ sealed class Screen(val route: String) {
     // Dashboard principal
     data object Home : Screen("home")
 
+    // Admin dashboard
+    data object AdminDashboard : Screen("admin")
+
     // Módulos admin
     data object AdminEmpleados     : Screen("admin/empleados")
     data object AdminDepartamentos : Screen("admin/departamentos")

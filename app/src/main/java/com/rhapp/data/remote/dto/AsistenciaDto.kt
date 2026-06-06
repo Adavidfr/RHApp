@@ -46,3 +46,11 @@ fun AsistenciaPayload.toRequest() = AsistenciaRequestDto(
     horaEntrada  = horaEntrada,
     observaciones = observaciones,
 )
+
+data class AsistenciaStatsDto(
+    val total:      Int,
+    val presentes:  Int,
+    val ausentes:   Int,
+    val licencias:  Int,
+    val retardos:   Int,
+)

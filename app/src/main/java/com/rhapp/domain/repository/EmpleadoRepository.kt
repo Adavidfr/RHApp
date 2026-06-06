@@ -10,4 +10,5 @@ interface EmpleadoRepository {
     suspend fun createEmpleado(payload: EmpleadoPayload): Result<Empleado>
     suspend fun updateEmpleado(id: Int, payload: EmpleadoPayload): Result<Empleado>
     suspend fun deleteEmpleado(id: Int): Result<Unit>
+    suspend fun getStats(): Result<Map<String, Any>>
 }

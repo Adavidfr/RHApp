@@ -48,4 +48,16 @@ class DepartamentoRepositoryImpl @Inject constructor(
         if (r.isSuccessful) r.body()!!.map { it.toDomain() }
         else error("Error ${r.code()}")
     }
+
+    override suspend fun getStats(): Result<Map<String, Any>> = runCatching {
+        val r = api.getStats()
+        if (r.isSuccessful) {
+            val s = r.body()!!
+            mapOf(
+                "total"    to s.total,
+                "activos"  to s.activos,
+                "inactivos" to s.inactivos,
+            )
+        } else error("Error ${r.code()}")
+    }
 }

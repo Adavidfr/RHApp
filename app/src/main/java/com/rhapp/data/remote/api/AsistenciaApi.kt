@@ -36,4 +36,7 @@ interface AsistenciaApi {
         @Query("mes")  mes:  Int,
         @Query("anio") anio: Int,
     ): Response<Map<String, Any>>
+
+    @GET("asistencias/estadisticas/")
+    suspend fun getStats(): Response<AsistenciaStatsDto>
 }

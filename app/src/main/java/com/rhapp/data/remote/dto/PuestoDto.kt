@@ -51,3 +51,9 @@ fun PuestoPayload.toRequest() = PuestoRequestDto(
     departamentoId  = departamentoId,
     activo          = activo,
 )
+
+data class PuestoStatsDto(
+    val total:      Int,
+    val activos:    Int,
+    val inactivos:  Int,
+)

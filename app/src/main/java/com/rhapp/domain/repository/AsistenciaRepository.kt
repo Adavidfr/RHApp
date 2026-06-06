@@ -9,4 +9,5 @@ interface AsistenciaRepository {
     suspend fun registrarAsistencia(payload: AsistenciaPayload): Result<Asistencia>
     suspend fun registrarSalida(id: Int): Result<Asistencia>
     suspend fun getResumenMes(mes: Int, anio: Int): Result<Map<String, Any>>
+    suspend fun getStats(): Result<Map<String, Any>>
 }

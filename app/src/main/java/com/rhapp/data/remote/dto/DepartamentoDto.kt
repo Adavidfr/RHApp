@@ -45,3 +45,9 @@ fun DepartamentoPayload.toRequest() = DepartamentoRequestDto(
     jefeId           = jefeId,
     activo           = activo,
 )
+
+data class DepartamentoStatsDto(
+    val total:      Int,
+    val activos:    Int,
+    val inactivos:  Int,
+)

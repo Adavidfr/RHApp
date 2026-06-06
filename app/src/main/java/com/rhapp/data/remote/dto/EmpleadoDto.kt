@@ -77,3 +77,10 @@ fun EmpleadoPayload.toRequest() = EmpleadoRequestDto(
     puestoId        = puestoId,
     supervisorId    = supervisorId,
 )
+
+data class EmpleadoStatsDto(
+    val total:           Int,
+    val activos:         Int,
+    val inactivos:       Int,
+    val porDepartamento: Map<String, Int>,
+)

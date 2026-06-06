@@ -45,4 +45,18 @@ class AsistenciaRepositoryImpl @Inject constructor(
             if (r.isSuccessful) r.body()!! as Map<String, Any>
             else error("Error ${r.code()}")
         }
+
+    override suspend fun getStats(): Result<Map<String, Any>> = runCatching {
+        val r = api.getStats()
+        if (r.isSuccessful) {
+            val s = r.body()!!
+            mapOf(
+                "total"      to s.total,
+                "presentes"  to s.presentes,
+                "ausentes"   to s.ausentes,
+                "licencias"  to s.licencias,
+                "retardos"   to s.retardos,
+            )
+        } else error("Error ${r.code()}")
+    }
 }

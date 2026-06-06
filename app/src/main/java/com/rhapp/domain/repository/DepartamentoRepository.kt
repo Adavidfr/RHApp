@@ -10,4 +10,5 @@ interface DepartamentoRepository {
     suspend fun updateDepartamento(id: Int, payload: DepartamentoPayload): Result<Departamento>
     suspend fun deleteDepartamento(id: Int): Result<Unit>
     suspend fun getActivos(): Result<List<Departamento>>
+    suspend fun getStats(): Result<Map<String, Any>>
 }
