@@ -6,10 +6,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.*
+import androidx.navigation.navArgument
 import com.rhapp.presentation.components.LoadingScreen
 import com.rhapp.presentation.ui.auth.LoginScreen
 import com.rhapp.presentation.ui.dashboard.DashboardScreen
+import com.rhapp.presentation.ui.nominas.NominasScreen
+import com.rhapp.presentation.ui.nominas.NominaDetailScreen
+import com.rhapp.presentation.ui.profile.ProfileScreen
 import com.rhapp.presentation.viewmodel.AuthViewModel
 import com.rhapp.theme.Surface
 
@@ -40,6 +45,8 @@ private fun NavGraphContent(authViewModel: AuthViewModel) {
         Screen.AdminNominas.route,
         Screen.AdminAsistencias.route,
         Screen.AdminDepartamentos.route,
+        Screen.Nominas.route,
+        Screen.Profile.route,
     )
     val showBottomBar = currentRoute in routesConBottomBar
 
@@ -115,6 +122,38 @@ private fun NavGraphContent(authViewModel: AuthViewModel) {
             // ── DETALLE EMPLEADO (placeholder M5) ────────────
             composable("empleado/{id}") {
                 PlaceholderScreen(titulo = "Detalle de Empleado", modulo = "Módulo 5")
+            }
+
+            // ── NÓMINAS (empleado) ───────────────────────────
+            composable(Screen.Nominas.route) {
+                NominasScreen(
+                    onNominaClick = { id -> navController.navigate(Screen.NominaDetalle().createRoute(id)) },
+                )
+            }
+
+            // ── DETALLE NÓMINA ────────────────────────────────
+            composable(
+                route     = Screen.NominaDetalle().route,
+                arguments = listOf(navArgument("id") { type = NavType.IntType }),
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getInt("id") ?: return@composable
+                NominaDetailScreen(
+                    nominaId = id,
+                    onBack    = { navController.popBackStack() },
+                )
+            }
+
+            // ── PERFIL ────────────────────────────────────────
+            composable(Screen.Profile.route) {
+                ProfileScreen(
+                    authViewModel = authViewModel,
+                    onLogout      = {
+                        authViewModel.logout()
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
+                )
             }
         }
     }

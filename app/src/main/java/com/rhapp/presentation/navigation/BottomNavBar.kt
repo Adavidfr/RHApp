@@ -27,6 +27,8 @@ fun BottomNavBar(navController: NavController) {
         BottomNavItem(Screen.AdminNominas,   "Nóminas",      Icons.Outlined.Payments,       Icons.Filled.Payments),
         BottomNavItem(Screen.AdminAsistencias,"Asistencia",  Icons.Outlined.CalendarMonth,  Icons.Filled.CalendarMonth),
         BottomNavItem(Screen.AdminDepartamentos,"Depto.",    Icons.Outlined.Business,       Icons.Filled.Business),
+        BottomNavItem(Screen.Nominas,        "Mis Nóminas",  Icons.Outlined.Receipt,        Icons.Filled.Receipt),
+        BottomNavItem(Screen.Profile,         "Perfil",       Icons.Outlined.Person,         Icons.Filled.Person),
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
