@@ -25,7 +25,12 @@ import com.rhapp.presentation.ui.nominas.NominasScreen
 import com.rhapp.presentation.ui.nominas.NominaDetailScreen
 import com.rhapp.presentation.ui.profile.ProfileScreen
 import com.rhapp.presentation.ui.admin.AdminScaffold
+import com.rhapp.presentation.ui.admin.asistencias.AsistenciasAdminScreen
 import com.rhapp.presentation.ui.admin.dashboard.AdminDashboardScreen
+import com.rhapp.presentation.ui.admin.departamentos.DepartamentosAdminScreen
+import com.rhapp.presentation.ui.admin.empleados.EmpleadosAdminScreen
+import com.rhapp.presentation.ui.admin.nominas.NominasAdminScreen
+import com.rhapp.presentation.ui.admin.puestos.PuestosAdminScreen
 import com.rhapp.presentation.viewmodel.AuthViewModel
 import com.rhapp.theme.Surface
 import com.rhapp.theme.TextSecondary
@@ -117,26 +122,6 @@ private fun NavGraphContent(authViewModel: AuthViewModel) {
                 )
             }
 
-            // ── EMPLEADOS (placeholder M5) ───────────────────
-            composable(Screen.AdminEmpleados.route) {
-                PlaceholderScreen(titulo = "Gestión de Empleados", modulo = "Módulo 5")
-            }
-
-            // ── DEPARTAMENTOS (placeholder M6) ───────────────
-            composable(Screen.AdminDepartamentos.route) {
-                PlaceholderScreen(titulo = "Departamentos & Puestos", modulo = "Módulo 6")
-            }
-
-            // ── NÓMINAS (placeholder M7) ─────────────────────
-            composable(Screen.AdminNominas.route) {
-                PlaceholderScreen(titulo = "Control de Nóminas", modulo = "Módulo 7")
-            }
-
-            // ── ASISTENCIAS (placeholder M8) ─────────────────
-            composable(Screen.AdminAsistencias.route) {
-                PlaceholderScreen(titulo = "Registro de Asistencia", modulo = "Módulo 8")
-            }
-
             // ── DETALLE EMPLEADO (placeholder M5) ────────────
             composable("empleado/{id}") {
                 PlaceholderScreen(titulo = "Detalle de Empleado", modulo = "Módulo 5")
@@ -206,50 +191,117 @@ private fun NavGraphContent(authViewModel: AuthViewModel) {
                 }
             }
 
-            // ── ADMIN MÓDULOS (placeholders) ───────────────────
-            listOf(
-                Screen.AdminEmpleados to "Empleados",
-                Screen.AdminDepartamentos to "Departamentos",
-                Screen.AdminPuestos to "Puestos",
-                Screen.AdminNominas to "Nóminas",
-                Screen.AdminAsistencias to "Asistencia",
-            ).forEach { (screen, title) ->
-                composable(screen.route) {
-                    if (!isStaff) {
-                        LaunchedEffect(Unit) {
-                            navController.navigate(Screen.Home.route) { popUpTo(0) }
-                        }
-                        return@composable
+            // ── ADMIN DEPARTAMENTOS (M8) ───────────────────────
+            composable(Screen.AdminDepartamentos.route) {
+                if (!isStaff) {
+                    LaunchedEffect(Unit) { navController.navigate(Screen.Home.route) { popUpTo(0) } }
+                    return@composable
+                }
+                AdminScaffold(
+                    currentRoute = Screen.AdminDepartamentos.route,
+                    user         = authViewModel.currentUser.collectAsState().value,
+                    title        = "Departamentos",
+                    onNavClick   = { route -> navController.navigate(route) { launchSingleTop = true } },
+                    onHomeClick  = { navController.navigate(Screen.Home.route) },
+                    onLogout     = {
+                        authViewModel.logout()
+                        navController.navigate(Screen.Login.route) { popUpTo(0) { inclusive = true } }
+                    },
+                ) { padding ->
+                    Box(modifier = Modifier.padding(padding)) {
+                        DepartamentosAdminScreen()
                     }
-                    AdminScaffold(
-                        currentRoute = screen.route,
-                        user         = authViewModel.currentUser.collectAsState().value,
-                        title        = title,
-                        onNavClick   = { route -> navController.navigate(route) { launchSingleTop = true } },
-                        onHomeClick   = { navController.navigate(Screen.Home.route) },
-                        onLogout     = {
-                            authViewModel.logout()
-                            navController.navigate(Screen.Login.route) { popUpTo(0) { inclusive = true } }
-                        },
-                    ) { padding ->
-                        Box(
-                            modifier         = Modifier.fillMaxSize().padding(padding),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    text = title,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = TextSecondary,
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                Text(
-                                    text = "Próximo módulo",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = TextFaint,
-                                )
-                            }
-                        }
+                }
+            }
+
+            // ── ADMIN PUESTOS (M8) ─────────────────────────────
+            composable(Screen.AdminPuestos.route) {
+                if (!isStaff) {
+                    LaunchedEffect(Unit) { navController.navigate(Screen.Home.route) { popUpTo(0) } }
+                    return@composable
+                }
+                AdminScaffold(
+                    currentRoute = Screen.AdminPuestos.route,
+                    user         = authViewModel.currentUser.collectAsState().value,
+                    title        = "Puestos",
+                    onNavClick   = { route -> navController.navigate(route) { launchSingleTop = true } },
+                    onHomeClick  = { navController.navigate(Screen.Home.route) },
+                    onLogout     = {
+                        authViewModel.logout()
+                        navController.navigate(Screen.Login.route) { popUpTo(0) { inclusive = true } }
+                    },
+                ) { padding ->
+                    Box(modifier = Modifier.padding(padding)) {
+                        PuestosAdminScreen()
+                    }
+                }
+            }
+
+            // ── ADMIN EMPLEADOS (M9) ────────────────────────────
+            composable(Screen.AdminEmpleados.route) {
+                if (!isStaff) {
+                    LaunchedEffect(Unit) { navController.navigate(Screen.Home.route) { popUpTo(0) } }
+                    return@composable
+                }
+                AdminScaffold(
+                    currentRoute = Screen.AdminEmpleados.route,
+                    user         = authViewModel.currentUser.collectAsState().value,
+                    title        = "Empleados",
+                    onNavClick   = { route -> navController.navigate(route) { launchSingleTop = true } },
+                    onHomeClick  = { navController.navigate(Screen.Home.route) },
+                    onLogout     = {
+                        authViewModel.logout()
+                        navController.navigate(Screen.Login.route) { popUpTo(0) { inclusive = true } }
+                    },
+                ) { padding ->
+                    Box(modifier = Modifier.padding(padding)) {
+                        EmpleadosAdminScreen()
+                    }
+                }
+            }
+
+            // ── ADMIN NÓMINAS ────────────────────────────────
+            composable(Screen.AdminNominas.route) {
+                if (!isStaff) {
+                    LaunchedEffect(Unit) { navController.navigate(Screen.Home.route) { popUpTo(0) } }
+                    return@composable
+                }
+                AdminScaffold(
+                    currentRoute = Screen.AdminNominas.route,
+                    user         = authViewModel.currentUser.collectAsState().value,
+                    title        = "Nóminas",
+                    onNavClick   = { route -> navController.navigate(route) { launchSingleTop = true } },
+                    onHomeClick  = { navController.navigate(Screen.Home.route) },
+                    onLogout     = {
+                        authViewModel.logout()
+                        navController.navigate(Screen.Login.route) { popUpTo(0) { inclusive = true } }
+                    },
+                ) { padding ->
+                    Box(modifier = Modifier.padding(padding)) {
+                        NominasAdminScreen()
+                    }
+                }
+            }
+
+            // ── ADMIN ASISTENCIAS ───────────────────────────
+            composable(Screen.AdminAsistencias.route) {
+                if (!isStaff) {
+                    LaunchedEffect(Unit) { navController.navigate(Screen.Home.route) { popUpTo(0) } }
+                    return@composable
+                }
+                AdminScaffold(
+                    currentRoute = Screen.AdminAsistencias.route,
+                    user         = authViewModel.currentUser.collectAsState().value,
+                    title        = "Asistencia",
+                    onNavClick   = { route -> navController.navigate(route) { launchSingleTop = true } },
+                    onHomeClick  = { navController.navigate(Screen.Home.route) },
+                    onLogout     = {
+                        authViewModel.logout()
+                        navController.navigate(Screen.Login.route) { popUpTo(0) { inclusive = true } }
+                    },
+                ) { padding ->
+                    Box(modifier = Modifier.padding(padding)) {
+                        AsistenciasAdminScreen()
                     }
                 }
             }
