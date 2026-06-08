@@ -104,8 +104,10 @@ private fun NavGraphContent(authViewModel: AuthViewModel) {
             // ── LOGIN ────────────────────────────────────────
             composable(Screen.Login.route) {
                 LoginScreen(
-                    onLoginSuccess = { _ ->
-                        navController.navigate(Screen.Home.route) {
+                    onLoginSuccess = { isStaff ->
+                        val destination = if (isStaff) Screen.AdminDashboard.route
+                                          else         Screen.Home.route
+                        navController.navigate(destination) {
                             popUpTo(Screen.Login.route) { inclusive = true }
                         }
                     },

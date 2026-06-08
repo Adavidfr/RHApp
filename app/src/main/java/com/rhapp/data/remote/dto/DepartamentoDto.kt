@@ -6,32 +6,31 @@ import com.rhapp.domain.model.DepartamentoPayload
 
 data class DepartamentoDto(
     val id:          Int,
-    val codigo:      String,
+    @SerializedName("code")            val codigo:           String,
     val nombre:      String,
-    val descripcion: String,
-    @SerializedName("presupuesto_anual") val presupuestoAnual: Double,
-    @SerializedName("jefe")             val jefeId:           Int?,
-    @SerializedName("jefe_nombre")      val jefeNombre:       String?,
-    val activo:      Boolean,
-    @SerializedName("total_empleados")  val totalEmpleados:   Int,
+    val descripcion: String?,
+    @SerializedName("presupuesto_anual") val presupuestoAnual: String?,  // servidor envía "50000.00" como String
+    @SerializedName("jefe_departamento") val jefeNombre:       String?,
+    @SerializedName("is_active")       val activo:           Boolean,
+    @SerializedName("empleados_count") val totalEmpleados:   Int,
 )
 
 data class DepartamentoRequestDto(
-    val codigo:      String,
+    @SerializedName("code")            val codigo:           String,
     val nombre:      String,
-    val descripcion: String,
-    @SerializedName("presupuesto_anual") val presupuestoAnual: Double,
-    @SerializedName("jefe")             val jefeId:           Int?,
-    val activo:      Boolean,
+    val descripcion: String?,
+    @SerializedName("presupuesto_anual") val presupuestoAnual: Double?,   // en el request enviamos número
+    @SerializedName("jefe_departamento") val jefeId:           Int?,
+    @SerializedName("is_active")       val activo:           Boolean,
 )
 
 fun DepartamentoDto.toDomain() = Departamento(
     id               = id,
     codigo           = codigo,
     nombre           = nombre,
-    descripcion      = descripcion,
-    presupuestoAnual = presupuestoAnual,
-    jefeId           = jefeId,
+    descripcion      = descripcion ?: "",
+    presupuestoAnual = presupuestoAnual?.toDoubleOrNull() ?: 0.0,
+    jefeId           = null,        // servidor devuelve el nombre, no el ID
     jefeNombre       = jefeNombre,
     activo           = activo,
     totalEmpleados   = totalEmpleados,
@@ -50,4 +49,10 @@ data class DepartamentoStatsDto(
     val total:      Int,
     val activos:    Int,
     val inactivos:  Int,
+)
+
+// El endpoint /activos/ devuelve {"value": [...], "Count": N} — no una lista directa
+data class ActivosDepartamentosDto(
+    val value: List<DepartamentoDto>,
+    @com.google.gson.annotations.SerializedName("Count") val count: Int,
 )

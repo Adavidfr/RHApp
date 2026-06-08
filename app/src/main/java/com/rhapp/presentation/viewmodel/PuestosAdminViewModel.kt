@@ -56,20 +56,19 @@ class PuestosAdminViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
 
-            // Cargar puestos y departamentos activos en paralelo
+            // Cargar en paralelo – departamentos se carga siempre, independiente de puestos
             val puestosResult = puestoRepository.getPuestos()
-            val depResult     = departamentoRepository.getActivos()
+            val depResult     = departamentoRepository.getDepartamentos()   // ← getDepartamentos en vez de getActivos
 
-            if (puestosResult.isSuccess) {
-                _state.update { s ->
-                    s.copy(
-                        puestos        = puestosResult.getOrThrow(),
-                        departamentos  = depResult.getOrElse { emptyList() },
-                        isLoading      = false,
-                    )
-                }
-            } else {
-                _state.update { it.copy(isLoading = false, error = puestosResult.exceptionOrNull()?.message) }
+            _state.update { s ->
+                s.copy(
+                    puestos       = puestosResult.getOrElse { s.puestos },
+                    departamentos = depResult.getOrElse { s.departamentos }.filter { it.activo },
+                    isLoading     = false,
+                    error         = if (puestosResult.isFailure)
+                                        puestosResult.exceptionOrNull()?.message
+                                    else null,
+                )
             }
         }
     }

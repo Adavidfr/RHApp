@@ -54,36 +54,40 @@ class AdminDashboardViewModel @Inject constructor(
             _state.value = AdminDashboardUiState.Loading
 
             try {
-                // Todas las llamadas en paralelo con async
-                val departamentoStatsDeferred = async<Result<Map<String, Any>>> { departamentoRepository.getStats() }
-                val puestoStatsDeferred      = async<Result<Map<String, Any>>> { puestoRepository.getStats() }
-                val nominaStatsDeferred     = async<Result<Map<String, Any>>> { nominaRepository.getStats() }
+                // Llamadas en paralelo usando endpoints que SÍ existen en el backend
+                val deptosDeferred      = async { departamentoRepository.getDepartamentos() }
+                val deptosActivosDeferred = async { departamentoRepository.getActivos() }
+                val puestosDeferred     = async { puestoRepository.getPuestos() }
+                val puestosActivosDeferred = async { puestoRepository.getActivos() }
+                val nominaStatsDeferred = async { nominaRepository.getStats() }
 
-                val departamentoStats = departamentoStatsDeferred.await().getOrThrow()
-                val puestoStats      = puestoStatsDeferred.await().getOrThrow()
-                val nominaStats     = nominaStatsDeferred.await().getOrThrow()
+                val deptos        = deptosDeferred.await().getOrDefault(emptyList())
+                val deptosActivos = deptosActivosDeferred.await().getOrDefault(emptyList())
+                val puestos       = puestosDeferred.await().getOrDefault(emptyList())
+                val puestosActivos = puestosActivosDeferred.await().getOrDefault(emptyList())
+                val nominaStats   = nominaStatsDeferred.await().getOrDefault(emptyMap())
 
                 val stats = AdminDashboardStats(
-                    totalEmpleados      = 0,
-                    empleadosActivos    = 0,
-                    empleadosInactivos  = 0,
-                    totalDepartamentos  = (departamentoStats["total"] as? Int) ?: 0,
-                    departamentosActivos = (departamentoStats["activos"] as? Int) ?: 0,
-                    totalPuestos        = (puestoStats["total"] as? Int) ?: 0,
-                    puestosActivos      = (puestoStats["activos"] as? Int) ?: 0,
-                    totalNominas        = (nominaStats["total"] as? Int) ?: 0,
-                    nominasPendientes   = (nominaStats["pendientes"] as? Int) ?: 0,
-                    nominasPagadas      = (nominaStats["pagadas"] as? Int) ?: 0,
-                    totalAsistencias    = 0,
-                    presentesHoy        = 0,
-                    ausentesHoy         = 0,
-                    retardosHoy         = 0,
-                    empleadosPorDepto  = emptyMap(),
-                    nominasPorEstado    = mapOf(
-                        "generada" to (nominaStats["generadas"] as? Int ?: 0),
-                        "revisada" to (nominaStats["revisadas"] as? Int ?: 0),
-                        "pagada"   to (nominaStats["pagadas"] as? Int ?: 0),
-                        "anulada"  to (nominaStats["anuladas"] as? Int ?: 0),
+                    totalEmpleados       = 0,
+                    empleadosActivos     = 0,
+                    empleadosInactivos   = 0,
+                    totalDepartamentos   = deptos.size,
+                    departamentosActivos = deptosActivos.size,
+                    totalPuestos         = puestos.size,
+                    puestosActivos       = puestosActivos.size,
+                    totalNominas         = (nominaStats["total"]     as? Int) ?: 0,
+                    nominasPendientes    = (nominaStats["pendientes"] as? Int) ?: 0,
+                    nominasPagadas       = (nominaStats["pagadas"]    as? Int) ?: 0,
+                    totalAsistencias     = 0,
+                    presentesHoy         = 0,
+                    ausentesHoy          = 0,
+                    retardosHoy          = 0,
+                    empleadosPorDepto    = emptyMap(),
+                    nominasPorEstado     = mapOf(
+                        "generada" to ((nominaStats["generadas"] as? Int) ?: 0),
+                        "revisada" to ((nominaStats["revisadas"] as? Int) ?: 0),
+                        "pagada"   to ((nominaStats["pagadas"]   as? Int) ?: 0),
+                        "anulada"  to ((nominaStats["anuladas"]  as? Int) ?: 0),
                     ),
                 )
 

@@ -92,18 +92,17 @@ class EmpleadosAdminViewModel @Inject constructor(
             _state.update { it.copy(isLoading = true, error = null) }
 
             val empleadosResult = empleadoRepository.getEmpleados()
-            val puestosResult   = puestoRepository.getActivos()
+            val puestosResult   = puestoRepository.getPuestos()   // getPuestos en vez de getActivos
 
-            if (empleadosResult.isSuccess) {
-                _state.update { s ->
-                    s.copy(
-                        empleados  = empleadosResult.getOrThrow(),
-                        puestos    = puestosResult.getOrElse { emptyList() },
-                        isLoading  = false,
-                    )
-                }
-            } else {
-                _state.update { it.copy(isLoading = false, error = empleadosResult.exceptionOrNull()?.message) }
+            _state.update { s ->
+                s.copy(
+                    empleados  = empleadosResult.getOrElse { s.empleados },
+                    puestos    = puestosResult.getOrElse { s.puestos }.filter { it.activo },
+                    isLoading  = false,
+                    error      = if (empleadosResult.isFailure)
+                                     empleadosResult.exceptionOrNull()?.message
+                                 else null,
+                )
             }
         }
     }

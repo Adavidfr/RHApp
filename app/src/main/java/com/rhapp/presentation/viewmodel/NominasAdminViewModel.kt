@@ -77,16 +77,15 @@ class NominasAdminViewModel @Inject constructor(
             val nominasResult   = nominaRepository.getNominas(anio = _state.value.anioFilter)
             val empleadosResult = empleadoRepository.getActivos()
 
-            if (nominasResult.isSuccess) {
-                _state.update { s ->
-                    s.copy(
-                        nominas   = nominasResult.getOrThrow(),
-                        empleados = empleadosResult.getOrElse { emptyList() },
-                        isLoading = false,
-                    )
-                }
-            } else {
-                _state.update { it.copy(isLoading = false, error = nominasResult.exceptionOrNull()?.message) }
+            _state.update { s ->
+                s.copy(
+                    nominas   = nominasResult.getOrElse { s.nominas },
+                    empleados = empleadosResult.getOrElse { s.empleados },
+                    isLoading = false,
+                    error     = if (nominasResult.isFailure)
+                                    nominasResult.exceptionOrNull()?.message
+                                else null,
+                )
             }
         }
     }

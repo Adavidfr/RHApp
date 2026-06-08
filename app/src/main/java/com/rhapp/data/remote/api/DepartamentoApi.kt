@@ -24,7 +24,7 @@ interface DepartamentoApi {
     suspend fun deleteDepartamento(@Path("id") id: Int): Response<Unit>
 
     @GET("departamentos/activos/")
-    suspend fun getActivos(): Response<List<DepartamentoDto>>
+    suspend fun getActivos(): Response<ActivosDepartamentosDto>
 
     @GET("departamentos/{id}/empleados_total/")
     suspend fun getEmpleadosTotal(@Path("id") id: Int): Response<Map<String, Int>>

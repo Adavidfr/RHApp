@@ -29,7 +29,7 @@ class EmpleadoRepositoryImpl @Inject constructor(
 
     override suspend fun getActivos(): Result<List<Empleado>> = runCatching {
         val r = api.getActivos()
-        if (r.isSuccessful) r.body()!!.map { it.toDomain() }
+        if (r.isSuccessful) r.body()!!.value.map { it.toDomain() }   // desenvuelve {"value":[...]}
         else error("Error ${r.code()}")
     }
 

@@ -28,11 +28,13 @@ fun EmpleadoFormSheet(
 
     var nombre          by remember { mutableStateOf(initial?.nombre          ?: "") }
     var apellido        by remember { mutableStateOf(initial?.apellido        ?: "") }
+    var numeroEmpleado  by remember { mutableStateOf(initial?.numeroEmpleado  ?: "") }
     var cedula          by remember { mutableStateOf(initial?.cedula          ?: "") }
     var email           by remember { mutableStateOf(initial?.email           ?: "") }
     var telefono        by remember { mutableStateOf(initial?.telefono        ?: "") }
     var direccion       by remember { mutableStateOf(initial?.direccion       ?: "") }
     var fechaNacimiento by remember { mutableStateOf(initial?.fechaNacimiento ?: "") }
+    var fechaIngreso    by remember { mutableStateOf("") }   // fecha de ingreso a la empresa
     var salario         by remember { mutableStateOf(initial?.salarioActual?.toString() ?: "") }
     var supervisorText  by remember { mutableStateOf(initial?.supervisorId?.toString() ?: "") }
 
@@ -55,12 +57,31 @@ fun EmpleadoFormSheet(
     val supId         = supervisorText.trimEnd().toIntOrNull()
     val salarioError  = salario.isNotEmpty() && salarioVal == null
     val supError      = supervisorText.isNotEmpty() && supId == null
-    val fechaError    = fechaNacimiento.isNotEmpty() &&
+    val fechaNacError = fechaNacimiento.isNotEmpty() &&
                         !Regex("""\d{4}-\d{2}-\d{2}""").matches(fechaNacimiento)
+    val fechaIngError = fechaIngreso.isNotEmpty() &&
+                        !Regex("""\d{4}-\d{2}-\d{2}""").matches(fechaIngreso)
+
+    // Edad auto-calculada desde fechaNacimiento
+    val edadCalculada: Int = remember(fechaNacimiento) {
+        runCatching {
+            val parts = fechaNacimiento.split("-")
+            val anioNac = parts[0].toInt()
+            val mesNac  = parts[1].toInt()
+            val diaNac  = parts[2].toInt()
+            val hoy = java.util.Calendar.getInstance()
+            var edad = hoy.get(java.util.Calendar.YEAR) - anioNac
+            if (hoy.get(java.util.Calendar.MONTH) + 1 < mesNac ||
+                (hoy.get(java.util.Calendar.MONTH) + 1 == mesNac && hoy.get(java.util.Calendar.DAY_OF_MONTH) < diaNac)) {
+                edad--
+            }
+            edad
+        }.getOrDefault(0)
+    }
 
     val canSave = nombre.isNotBlank() && apellido.isNotBlank() && cedula.isNotBlank() &&
-                  email.isNotBlank() && !salarioError && !supError && !fechaError &&
-                  puestoSel != null && !isSaving
+                  email.isNotBlank() && !salarioError && !supError && !fechaNacError && !fechaIngError &&
+                  fechaIngreso.isNotBlank() && puestoSel != null && !isSaving
 
     ModalBottomSheet(
         onDismissRequest = { if (!isSaving) onDismiss() },
@@ -97,6 +118,12 @@ fun EmpleadoFormSheet(
             // ── Datos personales ──────────────────────────────────
             Text("Datos personales", style = MaterialTheme.typography.labelMedium, color = TextSecondary, fontWeight = FontWeight.SemiBold)
 
+            RHTextField(
+                value = numeroEmpleado, onValueChange = { numeroEmpleado = it.uppercase() },
+                label = "Código / N° de empleado *", placeholder = "ej. EMP002",
+                enabled = !isSaving,
+            )
+
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 RHTextField(
                     value = nombre, onValueChange = { nombre = it },
@@ -118,8 +145,33 @@ fun EmpleadoFormSheet(
 
             RHTextField(
                 value = fechaNacimiento, onValueChange = { fechaNacimiento = it },
-                label = "Fecha de nacimiento", placeholder = "YYYY-MM-DD",
-                isError = fechaError, errorMessage = "Formato: YYYY-MM-DD",
+                label = "Fecha de nacimiento *", placeholder = "YYYY-MM-DD",
+                isError = fechaNacError, errorMessage = "Formato: YYYY-MM-DD",
+                enabled = !isSaving,
+            )
+
+            // Edad auto-calculada (solo informativo)
+            if (edadCalculada > 0) {
+                Surface(
+                    color    = Surface2,
+                    shape    = MaterialTheme.shapes.small,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text("Edad calculada", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                        Text("$edadCalculada años", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = Accent)
+                    }
+                }
+            }
+
+            RHTextField(
+                value = fechaIngreso, onValueChange = { fechaIngreso = it },
+                label = "Fecha de ingreso *", placeholder = "YYYY-MM-DD",
+                isError = fechaIngError, errorMessage = "Formato: YYYY-MM-DD",
                 enabled = !isSaving,
             )
 
@@ -277,6 +329,7 @@ fun EmpleadoFormSheet(
                 Button(
                     onClick = {
                         onSave(EmpleadoPayload(
+                            numeroEmpleado  = numeroEmpleado.trim(),
                             cedula          = cedula.trim(),
                             nombre          = nombre.trim(),
                             apellido        = apellido.trim(),
@@ -284,10 +337,13 @@ fun EmpleadoFormSheet(
                             telefono        = telefono.trim(),
                             direccion       = direccion.trim(),
                             fechaNacimiento = fechaNacimiento.trim(),
+                            fechaIngreso    = fechaIngreso.trim(),
+                            edad            = edadCalculada,
                             salarioActual   = salarioVal ?: 0.0,
                             tipoContrato    = contratoSel.value,
                             estado          = estadoSel.value,
                             puestoId        = puestoSel!!.id,
+                            departamentoId  = puestoSel!!.departamentoId,
                             supervisorId    = supId,
                         ))
                     },

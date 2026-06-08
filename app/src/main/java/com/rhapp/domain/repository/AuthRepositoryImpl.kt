@@ -25,9 +25,20 @@ class AuthRepositoryImpl @Inject constructor(
                 error(parseErrorMessage(errorBody, response.code()))
             }
             val body = response.body()!!
+            // Guardar tokens primero (necesarios para el interceptor de auth)
             tokenDataStore.saveTokens(body.access, body.refresh)
-            tokenDataStore.saveUser(body.userId, body.username, body.email, body.isStaff)
-            LoggedUser(body.userId, body.username, body.email, body.isStaff)
+
+            // Obtener perfil del usuario desde /auth/me/ (login solo devuelve tokens)
+            val meResponse = api.me()
+            val me = if (meResponse.isSuccessful) meResponse.body() else null
+
+            val userId   = me?.id       ?: body.resolvedUserId()
+            val uname    = me?.username ?: body.resolvedUsername()
+            val email    = me?.email    ?: body.resolvedEmail()
+            val isStaff  = me?.isStaff  ?: body.resolvedIsStaff()
+
+            tokenDataStore.saveUser(userId, uname, email, isStaff)
+            LoggedUser(userId, uname, email, isStaff)
         }
 
     override suspend fun logout(): Result<Unit> = runCatching {

@@ -44,8 +44,9 @@ class DepartamentoRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getActivos(): Result<List<Departamento>> = runCatching {
-        val r = api.getActivos()
-        if (r.isSuccessful) r.body()!!.map { it.toDomain() }
+        // Usamos el endpoint paginado (que funciona correctamente) y filtramos activos
+        val r = api.getDepartamentos()
+        if (r.isSuccessful) r.body()!!.results.map { it.toDomain() }.filter { it.activo }
         else error("Error ${r.code()}")
     }
 

@@ -156,24 +156,31 @@ fun DashboardScreen(
                 onClick  = { onNavigate(Screen.AdminEmpleados.route) },
             )
             QuickAccessCard(
-                title    = "Departamentos & Puestos",
+                title    = "Departamentos",
                 subtitle = "Estructura organizacional",
                 icon     = Icons.Default.Business,
                 color    = Info,
                 onClick  = { onNavigate(Screen.AdminDepartamentos.route) },
             )
             QuickAccessCard(
+                title    = "Puestos",
+                subtitle = "Gestión de cargos",
+                icon     = Icons.Default.Work,
+                color    = Success,
+                onClick  = { onNavigate(Screen.AdminPuestos.route) },
+            )
+            QuickAccessCard(
                 title    = "Nóminas",
                 subtitle = "Control de pagos y salarios",
                 icon     = Icons.Default.Payments,
-                color    = Success,
+                color    = Warning,
                 onClick  = { onNavigate(Screen.AdminNominas.route) },
             )
             QuickAccessCard(
                 title    = "Asistencia",
                 subtitle = "Registro de entrada y salida",
                 icon     = Icons.Default.CalendarMonth,
-                color    = Warning,
+                color    = StatusActivo,
                 onClick  = { onNavigate(Screen.AdminAsistencias.route) },
             )
         }

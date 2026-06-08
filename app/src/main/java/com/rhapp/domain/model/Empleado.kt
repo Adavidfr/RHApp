@@ -44,6 +44,7 @@ data class Empleado(
 )
 
 data class EmpleadoPayload(
+    val numeroEmpleado: String,
     val cedula: String,
     val nombre: String,
     val apellido: String,
@@ -51,9 +52,12 @@ data class EmpleadoPayload(
     val telefono: String,
     val direccion: String,
     val fechaNacimiento: String,
+    val fechaIngreso: String,
+    val edad: Int,
     val salarioActual: Double,
     val tipoContrato: String,
     val estado: String,
     val puestoId: Int,
+    val departamentoId: Int,
     val supervisorId: Int?,
 )

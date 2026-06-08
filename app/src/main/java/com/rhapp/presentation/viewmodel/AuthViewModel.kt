@@ -72,10 +72,12 @@ class AuthViewModel @Inject constructor(
     }
 
     fun logout() {
+        // Limpiar estado de UI inmediatamente (antes del coroutine) para que
+        // el LoginScreen no re-dispare onLoginSuccess con el estado anterior
+        _uiState.value = AuthUiState.Idle
         viewModelScope.launch {
             authRepository.logout()
             _currentUser.value = null
-            _uiState.value     = AuthUiState.Idle
         }
     }
 

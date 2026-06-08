@@ -14,7 +14,7 @@ interface EmpleadoApi {
     suspend fun getEmpleado(@Path("id") id: Int): Response<EmpleadoDto>
 
     @GET("empleados/activos/")
-    suspend fun getActivos(): Response<List<EmpleadoDto>>
+    suspend fun getActivos(): Response<ActivosEmpleadosDto>
 
     @POST("empleados/")
     suspend fun createEmpleado(@Body body: EmpleadoRequestDto): Response<EmpleadoDto>

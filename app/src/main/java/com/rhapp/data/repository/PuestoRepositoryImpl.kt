@@ -45,8 +45,9 @@ class PuestoRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getActivos(): Result<List<Puesto>> = runCatching {
-        val r = api.getActivos()
-        if (r.isSuccessful) r.body()!!.map { it.toDomain() }
+        // No existe endpoint /puestos/activos/ — filtramos la lista completa
+        val r = api.getPuestos()
+        if (r.isSuccessful) r.body()!!.results.map { it.toDomain() }.filter { it.activo }
         else error("Error ${r.code()}")
     }
 
